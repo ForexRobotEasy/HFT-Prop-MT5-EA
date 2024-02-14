@@ -1,0 +1,102 @@
+
+//+------------------------------------------------------------------+
+//|                                           HFT Prop MT5 EA        |
+//|                                              forexroboteasy.com  |
+//|                                           Forex Robot Easy Team  |
+//+------------------------------------------------------------------+
+
+// Define the necessary input parameters for the EA
+input int StopLoss = 10; // Stop loss value in pips
+input int TakeProfit = 20; // Take profit value in pips
+input int TradingPeriod = 3600; // Trading period in seconds
+
+// Define the necessary variables
+datetime openTime; // The opening time of the US30 market
+bool isActive = false; // Flag to track the active state of the EA
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Set the opening time of the US30 market to New York session opening
+    openTime = D'1970.01.01 14:30:00'; // Change the time according to the actual opening time
+    
+    // Set the active state of the EA based on the current time
+    if (TimeHour(TimeCurrent()) >= TimeHour(openTime) && TimeHour(TimeCurrent()) < TimeHour(openTime) + TradingPeriod / 3600)
+        isActive = true;
+    
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Perform any necessary cleanup tasks
+}
+
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+    // Check if the EA is currently active
+    if (!isActive)
+        return;
+    
+    // Check if the current time is the opening time of the US30 market
+    if (TimeCurrent() == openTime)
+    {
+        // Generate and execute the stop order based on predefined trading criteria
+        int ticket = OrderSend(Symbol(), OP_SELLSTOP, Ask - StopLoss * Point, 0, 0, Bid + TakeProfit * Point, 0, 'HFT Prop MT5 EA', 0, 0, clrRed);
+        
+        // Check for any errors in order execution
+        if (ticket < 0)
+        {
+            Print('Error executing order: ', GetLastError());
+            return;
+        }
+        
+        // Log the executed order
+        Print('Sell stop order executed successfully with ticket: ', ticket);
+    }
+}
+
+//+------------------------------------------------------------------+
+//| Expert start function                                            |
+//+------------------------------------------------------------------+
+void OnStart()
+{
+    // Check if the EA is currently active
+    if (!isActive)
+        return;
+    
+    // Perform any necessary tasks during the trading period
+}
+
+//+------------------------------------------------------------------+
+//| Expert function to determine the trend in the US30 market        |
+//+------------------------------------------------------------------+
+bool DetermineTrend()
+{
+    // Implement the logic to determine the trend in the US30 market
+    // Return true if the market is trending, false otherwise
+}
+
+//+------------------------------------------------------------------+
+//| Expert function to handle error messages                          |
+//+------------------------------------------------------------------+
+void HandleError(int errorCode)
+{
+    // Implement the logic to handle different error codes
+}
+
+//+------------------------------------------------------------------+
+//| Expert function to manage risk                                    |
+//+------------------------------------------------------------------+
+void ManageRisk()
+{
+    // Implement the logic to manage risk in the trading strategy
+}
